@@ -1,0 +1,5 @@
+package college
+
+object Registrar {
+  
+}

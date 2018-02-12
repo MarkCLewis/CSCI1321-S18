@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rooms>
+	<room name="The Inn" keyword="theinn">
+		<description>This is a place to sleep.</description>
+		<exits>-,thesquare,-,-,-,-</exits>
+	</room>
+	<room name="The Square" keyword="thesquare">
+		<description>This is the only place you can go in this little
+world.</description>
+		<item name="sword">This is sharp and pointy.</item>
+		<exits>theinn,-,-,-,-,-</exits>
+	</room>
+</rooms>
