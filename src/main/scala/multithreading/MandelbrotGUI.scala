@@ -16,7 +16,7 @@ object MandelbrotGUI extends JFXApp {
   val maxReal = 0.5
   val minImag = -1.0
   val maxImag = 1.0
-  val maxIters = 1000
+  val maxIters = 10000
   val logMaxIters = math.log(maxIters)
 
   stage = new JFXApp.PrimaryStage {
@@ -27,7 +27,7 @@ object MandelbrotGUI extends JFXApp {
       content = imageView
 
       val pixelWriter = img.pixelWriter
-      drawMandelbrotSequential(pixelWriter)
+      drawMandelbrotParallelSafe(pixelWriter)
 
       imageView.requestFocus()
       imageView.onMouseClicked = (me: MouseEvent) => {
@@ -39,10 +39,35 @@ object MandelbrotGUI extends JFXApp {
   }
 
   def drawMandelbrotSequential(pw: PixelWriter): Unit = {
+    val start = System.nanoTime()
     for (i <- 0 until imageWidth; j <- 0 until imageHeight) {
       val c = Complex(minReal + i * (maxReal - minReal) / imageWidth, minImag + j * (maxImag - minImag) / imageHeight)
       pw.setColor(i, j, colorFromIters(mandelbrotIterations(c)))
     }
+    println((System.nanoTime()-start)*1e-9)
+  }
+
+  def drawMandelbrotParallel(pw: PixelWriter): Unit = {
+    val start = System.nanoTime()
+    for (i <- (0 until imageWidth).par; j <- 0 until imageHeight) {
+      val c = Complex(minReal + i * (maxReal - minReal) / imageWidth, minImag + j * (maxImag - minImag) / imageHeight)
+      pw.setColor(i, j, colorFromIters(mandelbrotIterations(c)))
+    }
+    println((System.nanoTime()-start)*1e-9)
+  }
+
+  def drawMandelbrotParallelSafe(pw: PixelWriter): Unit = {
+    val start = System.nanoTime()
+    val points = for (i <- (0 until imageWidth).par) yield {
+      for(j <- 0 until imageHeight) yield {
+        val c = Complex(minReal + i * (maxReal - minReal) / imageWidth, minImag + j * (maxImag - minImag) / imageHeight)
+        (i, j, colorFromIters(mandelbrotIterations(c)))
+      }
+    }
+    for(row <- points.seq; (i, j, color) <- row) {
+      pw.setColor(i, j, color)
+    }
+    println((System.nanoTime()-start)*1e-9)
   }
 
   def colorFromIters(iters: Int): Color = {
