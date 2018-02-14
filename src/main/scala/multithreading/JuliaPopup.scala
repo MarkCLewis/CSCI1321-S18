@@ -8,7 +8,8 @@ import scalafx.scene.image.PixelWriter
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.scalatest.concurrent.Futures
- 
+import scalafx.application.Platform
+
 class JuliaPopup(c: Complex) {
   val imageWidth = 800
   val imageHeight = 800
@@ -17,19 +18,19 @@ class JuliaPopup(c: Complex) {
   val minImag = -1.5
   val maxImag = 1.5
 
-  val stage = new Stage {
-    title = "Julia at " + c.r + ", " + c.i
-    scene = new Scene(imageWidth, imageHeight) {
-      val img = new WritableImage(800, 800)
-      val imageView = new ImageView(img)
-      content = imageView
-
-      val pixelWriter = img.pixelWriter
-      drawJuliaParallel(pixelWriter)
+  val img = new WritableImage(800, 800)
+  val pixelWriter = img.pixelWriter
+  drawJuliaParallel(pixelWriter).foreach( _ => Platform.runLater {
+    val stage = new Stage {
+      title = "Julia at " + c.r + ", " + c.i
+      scene = new Scene(imageWidth, imageHeight) {
+        val imageView = new ImageView(img)
+        content = imageView
+      }
     }
-  }
 
-  stage.show()
+    stage.show()
+  })
 
   def drawJuliaSequential(pw: PixelWriter): Unit = {
     val start = System.nanoTime()
@@ -40,7 +41,7 @@ class JuliaPopup(c: Complex) {
     println((System.nanoTime() - start) * 1e-9)
   }
 
-  def drawJuliaParallel(pw: PixelWriter): Unit = {
+  def drawJuliaParallel(pw: PixelWriter): Future[Unit] = {
     val start = System.nanoTime()
     val futures = for (i <- 0 until imageWidth) yield Future {
       for (j <- 0 until imageHeight) yield {
@@ -49,8 +50,8 @@ class JuliaPopup(c: Complex) {
       }
     }
     val s = Future.sequence(futures)
-    s.foreach(points => {
-      for(row <- points; (i, j, color) <- row) {
+    s.map(points => {
+      for (row <- points; (i, j, color) <- row) {
         pw.setColor(i, j, color)
       }
       println((System.nanoTime() - start) * 1e-9)
