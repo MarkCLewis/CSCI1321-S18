@@ -15,17 +15,15 @@ class CrystalSupervisor(width: Int, height: Int, pr: PixelReader, pw: PixelWrite
   for(_ <- 1 to 100) {
     context.actorOf(Props[CrystalFloaty])
   }
-  for(child <- context.children) child ! CrystalFloaty.SetPosition(width/2, height/2)
+  for(child <- context.children) {
+    child ! CrystalFloaty.SetPosition(width/2, height/2)
+  }
   
   import CrystalSupervisor._
   def receive = {
-    case CanMoveTo(x, y) =>
-      sender ! (x>=0 && x<width && y>=0 && y<height && pr.getArgb(x, y)==0)
-    case AddCrystal(x, y) =>
-      Platform.runLater(pw.setColor(x, y, Color.Red))
-      sender ! CrystalFloaty.SetPosition(width/2, height/2)
+    // TODO - handle messages
     case m =>
-      println("Got a message supervisor doesn't process: m")
+      println(s"Got a message supervisor doesn't process: $m")
   }
 }
 
@@ -34,13 +32,6 @@ class CrystalSupervisor(width: Int, height: Int, pr: PixelReader, pw: PixelWrite
  * This isn't required, but it helps organize things and makes it more clear.
  */
 object CrystalSupervisor {
-  /**
-   * Used with ask to see of a floaty can move to a particular location.
-   */
   case class CanMoveTo(x: Int, y: Int)
-  
-  /**
-   * Sent when a crystal can't move to turn a pixel on.
-   */
-  case class AddCrystal(x: Int, y: Int)
+  case class SetPixel(x: Int, y: Int)
 }

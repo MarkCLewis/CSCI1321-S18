@@ -7,7 +7,6 @@ import scalafx.scene.image.ImageView
 import scalafx.scene.image.PixelWriter
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import org.scalatest.concurrent.Futures
 import scalafx.application.Platform
 
 class JuliaPopup(c: Complex) {

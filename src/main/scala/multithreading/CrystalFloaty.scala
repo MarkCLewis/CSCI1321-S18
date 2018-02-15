@@ -15,15 +15,19 @@ class CrystalFloaty extends Actor {
   import CrystalFloaty._
   def receive = {
     case SetPosition(x, y) =>
-      val mx = x + util.Random.nextInt(3)-1
-      val my = y + util.Random.nextInt(3)-1
-      val f = context.parent ? CrystalSupervisor.CanMoveTo(mx, my)
-      f.foreach { case canMove: Boolean =>
-        if(canMove) self ! SetPosition(mx, my)
-        else context.parent ! CrystalSupervisor.AddCrystal(x, y)
-      }
+      val nx = x + util.Random.nextInt(3)-1
+      val ny = y + util.Random.nextInt(3)-1
+      val f = context.parent ? CrystalSupervisor.CanMoveTo(nx, ny)
+      f.foreach(m => m match {
+        case b: Boolean =>
+          if(b) {
+            self ! SetPosition(nx, ny)
+          } else {
+            context.parent ! CrystalSupervisor.SetPixel(x, y)
+          }
+      })
     case m =>
-      println("Got a message floaty doesn't process: m")
+      println(s"Got a message floaty doesn't process: $m")
   }
 }
 
@@ -32,8 +36,5 @@ class CrystalFloaty extends Actor {
  * This isn't required, but it helps organize things and makes it more clear.
  */
 object CrystalFloaty {
-  /**
-   * Alter the location of the Floaty.
-   */
-  case class SetPosition(nx: Int, ny: Int)  
+  case class SetPosition(x: Int, y: Int)
 }
