@@ -3,6 +3,10 @@ package drmorio
 import scalafx.scene.canvas.GraphicsContext
 import scalafx.scene.paint.Color
 
+object DrMorioShape extends Enumeration {
+  val Circle, Square = Value
+}
+
 object Renderer {
   val blockSize = 30
 
@@ -10,15 +14,27 @@ object Renderer {
     gc.fill = Color.Black
     gc.fillRect(0, 0, 1000, 1000)
     for (entity <- grid.currentPill :: grid.entities) {
-      for ((colorEnum, loc) <- entity.colors.zip(entity.locations)) {
-        val color = colorEnum match {
-          case Block.Colors.Red => Color.Red
-          case Block.Colors.Yellow => Color.Yellow
-          case Block.Colors.Blue => Color.Blue
-        }
-        gc.fill = color
-        gc.fillRect(loc._1 * blockSize, loc._2 * blockSize,
-          blockSize, blockSize)
+      drawEntity(entity, gc)
+    }
+    drawEntity(grid.nextPill, gc, 6*blockSize)
+  }
+
+  def drawEntity(entity: drmorio.Entity, gc: scalafx.scene.canvas.GraphicsContext, offsetX: Double = 0.0) = {
+    val shapeType = entity.shape
+    for ((x, y, colorEnum) <- entity.locsAndColors) {
+      val color = colorEnum match {
+        case Entity.Colors.Red => Color.Red
+        case Entity.Colors.Yellow => Color.Yellow
+        case Entity.Colors.Blue => Color.Blue
+      }
+      gc.fill = color
+      shapeType match {
+        case DrMorioShape.Square =>
+          gc.fillRect(x * blockSize + offsetX, y * blockSize,
+            blockSize, blockSize)
+        case DrMorioShape.Circle =>
+          gc.fillOval(x * blockSize + offsetX, y * blockSize,
+            blockSize, blockSize)
       }
     }
   }
