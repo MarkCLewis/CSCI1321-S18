@@ -1,6 +1,8 @@
 package drmorio
 
-class Grid {
+import java.rmi.server.UnicastRemoteObject
+
+class Grid extends UnicastRemoteObject with RemoteGrid {
   object Mode extends Enumeration {
     val Normal, Falling, Paused = Value
   }
