@@ -6,11 +6,11 @@ import akka.actor.ActorRef
 class Room(name: String, desc: String, 
     exitNames: Array[String], private var items: List[Item]) extends Actor {
   
-  private var exits: Array[ActorRef] = null
+  private var exits: Array[Option[ActorRef]] = null
   
   import Room._
   def receive = {
-    case LinkExits(rooms) => exits = exitNames.map(rooms)
+    case LinkExits(rooms) => exits = exitNames.map(rooms.get)
     case GetExit(dir) => sender ! Player.TakeExit(getExit(dir))
     case m => println("Room got bad message: " + m)
   }

@@ -10,32 +10,37 @@ object DrMorioShape extends Enumeration {
 object Renderer {
   val blockSize = 30
 
-  def render(gc: GraphicsContext, grid: Grid): Unit = {
+  def render(gc: GraphicsContext, grid: PassableGrid): Unit = {
     gc.fill = Color.Black
     gc.fillRect(0, 0, 1000, 1000)
-    for (entity <- grid.currentPill :: grid.entities) {
+    for (entity <- grid.locsAndColors) {
       drawEntity(entity, gc)
     }
-    drawEntity(grid.nextPill, gc, 6*blockSize)
+    for (block <- grid.nextPill) {
+      drawEntity(block, gc, 6 * blockSize)
+    }
   }
 
-  def drawEntity(entity: drmorio.Entity, gc: scalafx.scene.canvas.GraphicsContext, offsetX: Double = 0.0) = {
-    val shapeType = entity.shape
-    for ((x, y, colorEnum) <- entity.locsAndColors) {
-      val color = colorEnum match {
-        case Entity.Colors.Red => Color.Red
-        case Entity.Colors.Yellow => Color.Yellow
-        case Entity.Colors.Blue => Color.Blue
-      }
-      gc.fill = color
-      shapeType match {
-        case DrMorioShape.Square =>
-          gc.fillRect(x * blockSize + offsetX, y * blockSize,
-            blockSize, blockSize)
-        case DrMorioShape.Circle =>
-          gc.fillOval(x * blockSize + offsetX, y * blockSize,
-            blockSize, blockSize)
-      }
+  def drawEntity(block: (Int, Int, Entity.Colors.Value, DrMorioShape.Value),
+      gc: scalafx.scene.canvas.GraphicsContext, offsetX: Double = 0.0) = {
+    val (x, y, colorEnum, shapeType) = block
+    val color = colorEnum match {
+      case Entity.Colors.Red => Color.Red
+      case Entity.Colors.Yellow => Color.Yellow
+      case Entity.Colors.Blue => Color.Blue
     }
+    gc.fill = color
+    shapeType match {
+      case DrMorioShape.Square =>
+        gc.fillRect(x * blockSize + offsetX, y * blockSize,
+          blockSize, blockSize)
+      case DrMorioShape.Circle =>
+        gc.fillOval(x * blockSize + offsetX, y * blockSize,
+          blockSize, blockSize)
+    }
+  }
+
+  def renderMessage(gc: GraphicsContext, msg: String): Unit = {
+    gc.fillText(msg, 20, 100)
   }
 }

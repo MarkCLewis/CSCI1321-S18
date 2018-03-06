@@ -1,5 +1,6 @@
 package drmorio
 
 @remote trait RemoteClient {
-  def drawStuff(myGrid: PassableGrid, theirGrid: PassableGrid, nextPiece: PillPiece)
+  def drawGrids(myGrid: PassableGrid, theirGrid: PassableGrid): Unit
+  def renderMessage(msg: String): Unit
 }
