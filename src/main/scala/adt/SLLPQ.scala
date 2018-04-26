@@ -1,7 +1,5 @@
 package adt
 
-package mud
-
 /** A sorted, singly-linked-list priority queue**/
 
 import reflect.ClassTag
