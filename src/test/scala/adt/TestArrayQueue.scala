@@ -2,15 +2,21 @@ package adt
 
 import org.junit.Assert._
 import org.junit.Test
+import java.util.regex.Pattern.Begin
+import org.junit.Before
 
 class TestArrayQueue {
+  private var queue: MyQueue[Int] = null
+  
+  @Before def makeQueue(): Unit = {
+    queue = new ArrayQueue[Int]()
+  }
+  
   @Test def startsEmpty(): Unit = {
-    val queue = new ArrayQueue[Int]()
     assertTrue(queue.isEmpty)
   }
   
   @Test def enqueue1dequeue(): Unit = {
-    val queue = new ArrayQueue[Int]()
     queue.enqueue(6)
     assertFalse(queue.isEmpty)
     assertEquals(6, queue.peek)
@@ -20,7 +26,6 @@ class TestArrayQueue {
   }
 
   @Test def enqueue2dequeue(): Unit = {
-    val queue = new ArrayQueue[Int]()
     queue.enqueue(6)
     assertFalse(queue.isEmpty)
     assertEquals(6, queue.peek)

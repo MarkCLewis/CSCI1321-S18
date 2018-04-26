@@ -65,6 +65,16 @@ class MutableDLL[A] extends MySeq[A] {
     ret
   }
 
+  def iterator = new Iterator[A] {
+    private var rover = end.next
+    def hasNext: Boolean = rover != end
+    def next(): A = {
+      val ret = rover.data
+      rover = rover.next
+      ret
+    }
+  }
+
 }
 
 object MutableDLL {
